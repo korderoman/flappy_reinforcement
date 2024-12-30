@@ -10,6 +10,7 @@ from config import config
 from pipes import Pipe
 from q_learning_agent import QLearningAgent
 from scenario import Scenario
+from score import Score
 
 
 #from pyvirtualdisplay import Display
@@ -32,13 +33,14 @@ class Game():
         self.resume_from=0
         self.game_over = False
         self.initial_len_history=len(self.state_history)
-        self.score = 0
         self.base_y=self.screen_height*0.79
         self.clock = pg.time.Clock()
+        self.score_point=0
         # Ejecutamos los métodos iniciales
         self.scenario = Scenario(self.screen,self.base_path_files, self.base_y)
         self.bird=Bird(self.screen,self.base_path_files, self.base_y)
         self.pipe=Pipe(self.screen,self.base_path_files, self.base_y,self.pipe_gap_size)
+        self.score=Score(self.screen, self.base_path_files)
         self.qlearning_agent = QLearningAgent(self.config)
         self.solve_initial_conditions()
         self.game_loop()
@@ -50,6 +52,8 @@ class Game():
         self.scenario.draw()
         self.bird.draw()
         self.pipe.draw()
+        self.score.draw()
+
 
     def update(self):
         if not self.game_over:
@@ -57,7 +61,9 @@ class Game():
             self.bird.update()
             self.pipe.update(self.resume_from,self.initial_len_history)
             self.check_score(self.bird.solve_information_to_crash(),self.pipe.solve_information_to_crash())
+            self.score.update(self.score_point)
             self.check_if_is_game_over()
+
 
     def check_if_is_game_over(self):
         is_crashed = self.check_if_crash(self.bird.solve_information_to_crash(), self.pipe.solve_information_to_crash())
@@ -72,8 +78,8 @@ class Game():
         pipe_h = pipes_information["h"]
         for l_pipe in pipes_information["lower_pipes"]:
             l_pipe_rect = pg.Rect(l_pipe['x'], l_pipe['y'], pipe_w, pipe_h)
-            if player_rect.left>l_pipe_rect.right:
-                print("mas 1 punto")
+            if l_pipe_rect.right< player_rect.left < l_pipe_rect.right+4:
+                self.score_point+=1
 
     def pixel_collision(self,rect1, rect2, hitmask1, hitmask2):
         """Checks if two objects collide and not just their rects"""
