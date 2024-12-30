@@ -56,15 +56,26 @@ class Game():
             self.scenario.update()
             self.bird.update()
             self.pipe.update(self.resume_from,self.initial_len_history)
-            #self.check_if_is_game_over()
+            self.check_score(self.bird.solve_information_to_crash(),self.pipe.solve_information_to_crash())
+            self.check_if_is_game_over()
 
     def check_if_is_game_over(self):
         is_crashed = self.check_if_crash(self.bird.solve_information_to_crash(), self.pipe.solve_information_to_crash())
         self.game_over = is_crashed[0]
-        #if self.game_over:
-        #    self.qlearning_agent.save_when_is_quit()
-        return is_crashed
+        if self.game_over and self.config["train"]::
+            #self.qlearning_agent.update_qvalues(score)
+            #print(f"Episode: {Agent.episode}, alpha: {Agent.alpha}, score: {score}, max_score: {Agent.max_score}")
+            #self.qlearning_agent.save_when_is_quit()
 
+    def check_score(self, bird_information, pipes_information):
+        player_rect = pg.Rect(bird_information['x'], bird_information['y'],
+                              bird_information['w'], bird_information['h'])
+        pipe_w = pipes_information["w"]
+        pipe_h = pipes_information["h"]
+        for l_pipe in pipes_information["lower_pipes"]:
+            l_pipe_rect = pg.Rect(l_pipe['x'], l_pipe['y'], pipe_w, pipe_h)
+            if player_rect.left>l_pipe_rect.right:
+                print("mas 1 punto")
 
     def pixel_collision(self,rect1, rect2, hitmask1, hitmask2):
         """Checks if two objects collide and not just their rects"""
@@ -124,19 +135,14 @@ class Game():
             if event.type== pg.KEYDOWN and event.key == pg.K_SPACE:
                 self.bird.flap_by_space_event()
         #******* El agente evalúa si realiza una acción de aleteo
-        if self.qlearning_agent.should_be_act(self.bird.pos_x, self.bird.pos_y,self.bird.vel_y,self.pipe.pipe_down_positions):
+        should_be_act =self.qlearning_agent.should_be_act(self.bird.pos_x, self.bird.pos_y,self.bird.vel_y,self.pipe.pipe_down_positions)
+        if should_be_act and not self.config['is_manual'] :
             self.bird.flap_by_space_event()
 
     def game_loop(self):
         while True:
             self.check_events()
             self.update()
-            crashTest = self.check_if_is_game_over()
-            
-            if crashTest[0]:
-                self.qlearning_agent.update_qvalues(score)
-                if config["train"]:
-                    print(f"Episode: {Agent.episode}, alpha: {Agent.alpha}, score: {score}, max_score: {Agent.max_score}")
             
             if self.config['show_game']:
                 self.draw()
