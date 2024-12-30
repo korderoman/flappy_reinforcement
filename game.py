@@ -62,7 +62,7 @@ class Game():
     def check_if_is_game_over(self):
         is_crashed = self.check_if_crash(self.bird.solve_information_to_crash(), self.pipe.solve_information_to_crash())
         self.game_over = is_crashed[0]
-        if self.game_over and self.config["train"]::
+        #if self.game_over and self.config["train"]:
             #self.qlearning_agent.update_qvalues(score)
             #print(f"Episode: {Agent.episode}, alpha: {Agent.alpha}, score: {score}, max_score: {Agent.max_score}")
             #self.qlearning_agent.save_when_is_quit()
@@ -135,17 +135,17 @@ class Game():
             if event.type== pg.KEYDOWN and event.key == pg.K_SPACE:
                 self.bird.flap_by_space_event()
         #******* El agente evalúa si realiza una acción de aleteo
-        should_be_act =self.qlearning_agent.should_be_act(self.bird.pos_x, self.bird.pos_y,self.bird.vel_y,self.pipe.pipe_down_positions)
-        if should_be_act and not self.config['is_manual'] :
-            self.bird.flap_by_space_event()
+        if not self.config['is_manual']:
+            if self.qlearning_agent.should_be_act(self.bird.pos_x, self.bird.pos_y,self.bird.vel_y,self.pipe.pipe_down_positions):
+                self.bird.flap_by_space_event()
 
     def game_loop(self):
         while True:
             self.check_events()
+            self.draw()
             self.update()
             
             if self.config['show_game']:
-                self.draw()
                 pg.display.update()
                 self.clock.tick(self.fps)
 
