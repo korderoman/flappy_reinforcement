@@ -30,6 +30,7 @@ class Game():
         self.hit_masks = {}
         self.replay_buffer = []
         self.resume_from=0
+        self.game_over = False
         self.initial_len_history=len(self.state_history)
         self.score = 0
         self.base_y=self.screen_height*0.79
@@ -51,11 +52,18 @@ class Game():
         self.pipe.draw()
 
     def update(self):
-        self.scenario.update()
-        self.bird.update()
-        self.pipe.update(self.resume_from,self.initial_len_history)
-        is_crashed=self.check_if_crash(self.bird.solve_information_to_crash(), self.pipe.solve_information_to_crash())
-        print("is",is_crashed)
+        if not self.game_over:
+            self.scenario.update()
+            self.bird.update()
+            self.pipe.update(self.resume_from,self.initial_len_history)
+            self.check_if_is_game_over()
+
+    def check_if_is_game_over(self):
+        is_crashed = self.check_if_crash(self.bird.solve_information_to_crash(), self.pipe.solve_information_to_crash())
+        self.game_over = is_crashed[0]
+        if self.game_over:
+            self.qlearning_agent.save_when_is_quit()
+
 
     def pixel_collision(self,rect1, rect2, hitmask1, hitmask2):
         """Checks if two objects collide and not just their rects"""
