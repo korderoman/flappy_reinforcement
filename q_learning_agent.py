@@ -6,6 +6,9 @@ class QLearningAgent:
     self.config = config
     self.agent = QLearning(config["train"])
     self.solve_check_behaviour_agent()
+    
+  def get_agent(self):
+      return self.agent
 
   def solve_check_behaviour_agent(self):
     """
@@ -22,7 +25,7 @@ class QLearningAgent:
     self.agent.save_training_states()
     
   def update_qvalues(self, score):
-      self.update_qvalues(score)
+      self.agent.update_qvalues(score)
 
   def should_be_act(self,bird_pos_x, bird_pos_y, bird_vel_y, lower_pipes_position):
     """

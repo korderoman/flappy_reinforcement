@@ -56,7 +56,7 @@ class Game():
 
 
     def update(self):
-        if not self.game_over:
+        if not self.game_over or True:
             self.scenario.update()
             self.bird.update()
             self.pipe.update(self.resume_from,self.initial_len_history)
@@ -68,9 +68,10 @@ class Game():
     def check_if_is_game_over(self):
         is_crashed = self.check_if_crash(self.bird.solve_information_to_crash(), self.pipe.solve_information_to_crash())
         self.game_over = is_crashed[0]
-        #if self.game_over and self.config["train"]:
-            #self.qlearning_agent.update_qvalues(score)
-            #print(f"Episode: {Agent.episode}, alpha: {Agent.alpha}, score: {score}, max_score: {Agent.max_score}")
+        if self.game_over and self.config["train"]:
+            self.qlearning_agent.update_qvalues(self.score_point)
+            if self.qlearning_agent.get_agent().episode % 100 == 0:
+                print(f"Episode: {self.qlearning_agent.get_agent().episode}, alpha: {self.qlearning_agent.get_agent().alpha}, score: {self.score_point}, max_score: {self.qlearning_agent.get_agent().max_score}")
             #self.qlearning_agent.save_when_is_quit()
 
     def check_score(self, bird_information, pipes_information):
