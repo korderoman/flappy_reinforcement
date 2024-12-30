@@ -9,12 +9,13 @@ from bird import Bird
 from config import config
 from pipes import Pipe
 from q_learning_agent import QLearningAgent
+from restartgame import RestartGame
 from scenario import Scenario
 from score import Score
 
 
 #from pyvirtualdisplay import Display
-class Game():
+class Game:
     def __init__(self, config) -> None:
         self.config = config
         #self.base_path_files = "/content/drive/My Drive/Colab Notebooks/aprendizaje_por reforzamiento/"
@@ -42,17 +43,25 @@ class Game():
         self.pipe=Pipe(self.screen,self.base_path_files, self.base_y,self.pipe_gap_size)
         self.score=Score(self.screen, self.base_path_files)
         self.qlearning_agent = QLearningAgent(self.config)
+        self.restart=RestartGame(self.screen,self.base_path_files)
         self.solve_initial_conditions()
         self.game_loop()
 
     def solve_initial_conditions(self):
         self.qlearning_agent.solve_check_behaviour_agent()  # determinamos el tipo de comportamiento
 
+    def restart_game(self):
+        self.score_point=0
+        self.game_over=False
+        self.bird.restart()
+        self.pipe.restart()
+
     def draw(self):
         self.scenario.draw()
         self.bird.draw()
         self.pipe.draw()
         self.score.draw()
+        self.restart.draw(self.game_over)
 
 
     def update(self):
@@ -138,6 +147,10 @@ class Game():
                 sys.exit()
             if event.type== pg.KEYDOWN and event.key == pg.K_SPACE:
                 self.bird.flap_by_space_event()
+            if event.type==pg.MOUSEBUTTONUP and self.game_over:
+                 if self.restart.check_if_click_restart(pg.mouse.get_pos()):
+                     self.restart_game()
+
         #******* El agente evalúa si realiza una acción de aleteo
         should_be_act =self.qlearning_agent.should_be_act(self.bird.pos_x, self.bird.pos_y,self.bird.vel_y,self.pipe.pipe_down_positions)
         if should_be_act and not self.config['is_manual'] :

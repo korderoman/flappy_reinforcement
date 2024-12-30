@@ -70,7 +70,7 @@ class Bird:
         self.pos_y+=min(self.vel_y,self.base_y-self.pos_y-self.image.get_height())
 
     def get_hit_mask(self, image):
-        """Returns a hitmask using an image's alpha."""
+        """Retorna la mascara de golpe usando un rectángulo."""
         mask = []
         for x in range(image.get_width()):
             mask.append([])
@@ -89,3 +89,20 @@ class Bird:
         """
         if self.flapped:
             self.flapped = False
+    def restart(self):
+        self.image_list = self.create()
+        self.image_index = 0
+        self.screen_width, self.screen_height = self.screen.get_size()
+        self.image = self.image_list[self.image_index]
+        self.player_index_gen = cycle([0, 1, 2, 1])
+        self.loop_iter = 0
+        self.pos_x = int(self.screen_width * 0.2)
+        self.pos_y = self.calculate_bird_pos_y()
+        # características que serán usadas en el juego
+        self.vel_y = -9
+        self.flap_acc = -9  # velocidad del aleteo
+        self.flapped = False  # cambia a verdadero cuando aletea
+        self.max_vel_y = 10  # máxima velocidad de descenso
+        self.min_vel_y = -8  # Velocidad mínima de ascenso
+        self.acc_y = 1  # velocidad de aceleración en descenso
+

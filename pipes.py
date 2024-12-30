@@ -95,3 +95,10 @@ class Pipe:
     def get_hit_masks(self):
         pipe_list=[self.pipe_up,self.pipe_down]
         return [self.get_hit_mask(x) for x in pipe_list]
+
+    def restart(self):
+        self.pipe_up, self.pipe_down = self.create()
+        self.pipe_up_positions, self.pipe_down_positions = self.get_positions()
+        # Datos compartidos en todo el juego
+        self.vel_x = -4
+
