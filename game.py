@@ -56,13 +56,14 @@ class Game():
             self.scenario.update()
             self.bird.update()
             self.pipe.update(self.resume_from,self.initial_len_history)
-            self.check_if_is_game_over()
+            #self.check_if_is_game_over()
 
     def check_if_is_game_over(self):
         is_crashed = self.check_if_crash(self.bird.solve_information_to_crash(), self.pipe.solve_information_to_crash())
         self.game_over = is_crashed[0]
-        if self.game_over:
-            self.qlearning_agent.save_when_is_quit()
+        #if self.game_over:
+        #    self.qlearning_agent.save_when_is_quit()
+        return is_crashed
 
 
     def pixel_collision(self,rect1, rect2, hitmask1, hitmask2):
@@ -129,9 +130,16 @@ class Game():
     def game_loop(self):
         while True:
             self.check_events()
+            self.update()
+            crashTest = self.check_if_is_game_over()
+            
+            if crashTest[0]:
+                self.qlearning_agent.update_qvalues(score)
+                if config["train"]:
+                    print(f"Episode: {Agent.episode}, alpha: {Agent.alpha}, score: {score}, max_score: {Agent.max_score}")
+            
             if self.config['show_game']:
                 self.draw()
-                self.update()
                 pg.display.update()
                 self.clock.tick(self.fps)
 
